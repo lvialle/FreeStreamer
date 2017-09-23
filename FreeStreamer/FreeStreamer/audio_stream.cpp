@@ -855,19 +855,14 @@ void Audio_Stream::audioQueueBuffersEmpty()
     AS_TRACE("%i cached packets, enqueuing\n", count);
     
     // Keep enqueuing the packets in the queue until we have them
-    
-    pthread_mutex_lock(&m_packetQueueMutex);
-    if (m_playPacket && count > 0) {
-        pthread_mutex_unlock(&m_packetQueueMutex);
-        determineBufferingLimits();
-    } else {
-        pthread_mutex_unlock(&m_packetQueueMutex);
+    if (0 == playbackDataCount()) {
+        setState(PLAYBACK_COMPLETED);
         
         AS_TRACE("%s: closing the audio queue\n", __PRETTY_FUNCTION__);
         
-        setState(PLAYBACK_COMPLETED);
-        
         close(true);
+    } else {
+        determineBufferingLimits();
     }
 }
     
